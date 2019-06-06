@@ -1,0 +1,31 @@
+{
+  "name": "task-queue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./dist/index.js",
+    "dev": "ts-node ./src/index.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "mrdulin <novaline.dulin@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/faker": "^4.1.5",
+    "dotenv": "^8.0.0",
+    "faker": "^4.1.0",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.29.1",
+    "dl-toolkits": "^1.0.11",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  }
+}
