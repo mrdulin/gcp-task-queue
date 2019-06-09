@@ -41,7 +41,22 @@ class GoogleAdwordsTaskQueue implements ITaskQueue {
   }
 
   private async taskHandler(message: IMessage) {
-    this.logger.debug(message);
+    const { data, ...rest } = message;
+    const jsonData = JSON.parse(Buffer.from(data).toString());
+
+    const publishTime = new Date(message.publishTime).getTime();
+    const republishTimestamp = Date.now() - 5 * 1000;
+
+    if (publishTime < republishTimestamp) {
+      this.logger.info(`message acked with ID: ${message.id}`);
+      message.ack();
+    } else {
+      const duration = Math.abs(republishTimestamp - publishTime);
+      this.logger.info(
+        `push message:${message.id} back to MQ, after ${duration / 1000} seconds, this message will be redelivered`,
+      );
+      message.nack();
+    }
   }
 
   private async taskErrorHandler(error: Error) {
