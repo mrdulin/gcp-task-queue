@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { IApplicationConfig, IConfig } from './config/application';
+import { ApplicationConfigProvider, IConfig } from './config/application';
 import { ServiceIdentifierManager } from './ioc/ServiceIdentifierManager';
 import { ILogMethods, IPubSubService } from './services';
 
@@ -10,26 +10,33 @@ interface IApplication {
 @injectable()
 class Application implements IApplication {
   private pubsubService: IPubSubService;
-  private applicationConfig: IApplicationConfig;
+  private applicationConfigProvider: ApplicationConfigProvider;
   private logger: ILogMethods;
   constructor(
     @inject(ServiceIdentifierManager.IPubSubService) pubsubService: IPubSubService,
-    @inject(ServiceIdentifierManager.IApplicationConfig) applicationConfig: IApplicationConfig,
+    @inject(ServiceIdentifierManager.ApplicationConfigProvider) applicationConfigProvider: ApplicationConfigProvider,
     @inject(ServiceIdentifierManager.Logger) logger: ILogMethods,
   ) {
     this.pubsubService = pubsubService;
-    this.applicationConfig = applicationConfig;
+    this.applicationConfigProvider = applicationConfigProvider;
     this.logger = logger;
   }
   public async start() {
-    let config: IConfig;
-    try {
-      config = await this.applicationConfig.load();
-      this.logger.debug('load application config done', { context: 'Application.start', arguments: { config } });
-    } catch (error) {
-      this.logger.error('load application config error');
+    const config: IConfig = await this.applicationConfigProvider();
+    await this.initialize();
+  }
+
+  public async initialize() {
+    const TOPIC_SUBSCRIPTION_MAPS = [{ topic: 'ggaw-task-queue', sub: 'ggaw-task-queue' }];
+    const tasks = [];
+    for (const map of TOPIC_SUBSCRIPTION_MAPS) {
+      const task = this.pubsubService
+        .createTopic(map.topic)
+        .then(() => this.pubsubService.createSubscription(map.topic, map.sub))
+        .catch((error) => this.logger.error(error));
+      tasks.push(task);
     }
-    this.pubsubService.createTopic('test');
+    await Promise.all(tasks);
   }
 }
 

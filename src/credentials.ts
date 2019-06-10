@@ -1,3 +1,0 @@
-const credentials = {};
-
-export { credentials };

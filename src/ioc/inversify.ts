@@ -1,10 +1,11 @@
 import { PubSub } from '@google-cloud/pubsub';
+import { ClientConfig } from '@google-cloud/pubsub/build/src/pubsub';
 import { Container, decorate, inject, injectable, interfaces } from 'inversify';
 import 'reflect-metadata';
 import { Application, IApplication } from '../app';
-import { ApplicationConfig, IApplicationConfig } from '../config/application';
+import { ApplicationConfig, ApplicationConfigProvider, IApplicationConfig, IConfig } from '../config/application';
 import { IPubSubConfig, PubSubConfig } from '../config/pubsub';
-import { IPubSubService, Logger, PubSubService } from '../services';
+import { IPubSubService, Logger, PubSubProvider, PubSubService } from '../services';
 import { ServiceIdentifierManager } from './ServiceIdentifierManager';
 
 interface IApplicationContainerOptions {
@@ -32,8 +33,8 @@ class ApplicationContainer {
   }
 
   private decorate() {
-    decorate(injectable(), PubSub);
-    decorate(inject(ServiceIdentifierManager.IPubSubConfig) as ParameterDecorator, PubSub, 0);
+    // decorate(injectable(), PubSub);
+    // decorate(inject(ServiceIdentifierManager.ApplicationConfigProvider) as ParameterDecorator, PubSub, 0);
   }
 
   private bind() {
@@ -45,8 +46,34 @@ class ApplicationContainer {
       .bind<IApplicationConfig>(ServiceIdentifierManager.IApplicationConfig)
       .to(ApplicationConfig)
       .inSingletonScope();
-    this.container.bind<IPubSubConfig>(ServiceIdentifierManager.IPubSubConfig).toConstantValue(new PubSubConfig());
-    this.container.bind<PubSub>(ServiceIdentifierManager.PubSub).to(PubSub);
+    this.container
+      .bind<IPubSubConfig>(ServiceIdentifierManager.IPubSubConfig)
+      .to(PubSubConfig)
+      .inSingletonScope();
+    this.container
+      .bind<ApplicationConfigProvider>(ServiceIdentifierManager.ApplicationConfigProvider)
+      .toProvider<IConfig>((context: interfaces.Context) => {
+        return async () => {
+          const applicationConfig: IApplicationConfig = context.container.get<IApplicationConfig>(
+            ServiceIdentifierManager.IApplicationConfig,
+          );
+          const config: IConfig = await applicationConfig.load();
+          return config;
+        };
+      });
+    this.container
+      .bind<PubSubProvider>(ServiceIdentifierManager.PubSubProvider)
+      .toProvider<PubSub>((context: interfaces.Context) => {
+        return async () => {
+          const pubsubConfig: IPubSubConfig = context.container.get<IPubSubConfig>(
+            ServiceIdentifierManager.IPubSubConfig,
+          );
+          const config: ClientConfig = await pubsubConfig.getConfig();
+          return new PubSub(config);
+        };
+      });
+
+    // this.container.bind<PubSub>(ServiceIdentifierManager.PubSub).to(PubSub);
     this.container
       .bind<IApplication>(ServiceIdentifierManager.IApplication)
       .to(Application)
