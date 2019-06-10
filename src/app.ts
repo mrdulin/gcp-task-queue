@@ -23,20 +23,6 @@ class Application implements IApplication {
   }
   public async start() {
     const config: IConfig = await this.applicationConfigProvider();
-    await this.initialize();
-  }
-
-  public async initialize() {
-    const TOPIC_SUBSCRIPTION_MAPS = [{ topic: 'ggaw-task-queue', sub: 'ggaw-task-queue' }];
-    const tasks = [];
-    for (const map of TOPIC_SUBSCRIPTION_MAPS) {
-      const task = this.pubsubService
-        .createTopic(map.topic)
-        .then(() => this.pubsubService.createSubscription(map.topic, map.sub))
-        .catch((error) => this.logger.error(error));
-      tasks.push(task);
-    }
-    await Promise.all(tasks);
   }
 }
 

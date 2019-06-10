@@ -9,6 +9,19 @@ interface IPubSubService {
   createSubscription(topicName: string, subName: string): Promise<Subscription>;
 }
 
+interface IMessage<Attributes extends object = {}> {
+  connectionId: string;
+  ackId: string;
+  id: string;
+  attributes: Attributes;
+  publishTime: string;
+  received: number;
+  data: Buffer;
+  timestamp: string;
+  ack(): void;
+  nack(): void;
+}
+
 @injectable()
 class PubSubService implements IPubSubService {
   private pubsub!: PubSub;
@@ -72,4 +85,4 @@ class PubSubService implements IPubSubService {
   }
 }
 
-export { PubSubService, IPubSubService };
+export { PubSubService, IPubSubService, IMessage };
