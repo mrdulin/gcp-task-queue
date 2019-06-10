@@ -1,9 +1,10 @@
 import { Subscription, Topic } from '@google-cloud/pubsub';
-import { inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { ServiceIdentifierManager } from '../../ioc';
 import { ILogMethods, IMessage, PubSubService } from '../../services';
-import { ITaskQueue } from '../interface';
+import { ITaskQueue } from '../interfaces';
 
+@injectable()
 class GoogleAdwordsTaskQueue implements ITaskQueue {
   public static readonly TOPIC: string = 'ggaw-task-queue';
   public static readonly SUB: string = GoogleAdwordsTaskQueue.TOPIC;
@@ -19,9 +20,15 @@ class GoogleAdwordsTaskQueue implements ITaskQueue {
   }
 
   public async start() {
-    const { subscription } = await this.initialize();
-    subscription.on('message', this.taskHandler);
-    subscription.on('error', this.taskErrorHandler);
+    try {
+      const { subscription } = await this.initialize();
+      subscription.on('message', this.taskHandler);
+      subscription.on('error', this.taskErrorHandler);
+      this.logger.info('google adwords task queue started');
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('google adwords task queue started error');
+    }
   }
 
   private async initialize() {

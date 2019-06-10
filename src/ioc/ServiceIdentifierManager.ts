@@ -7,6 +7,8 @@ class ServiceIdentifierManager {
   public static readonly PubSubProvider = Symbol.for('PubSubProvider');
   public static readonly IPubSubService = Symbol.for('IPubSubService');
   public static readonly IApplication = Symbol.for('IApplication');
+  public static readonly ITaskQueue = Symbol.for('ITaskQueue');
+  public static readonly TaskQueueFactory = Symbol.for('TaskQueueFactory');
 }
 
 export { ServiceIdentifierManager };

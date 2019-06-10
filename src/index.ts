@@ -7,12 +7,7 @@ const applicationContainer = ApplicationContainer.getInstance();
 const application: IApplication = applicationContainer.get(ServiceIdentifierManager.IApplication);
 const logger: ILogMethods = applicationContainer.get(ServiceIdentifierManager.Logger);
 
-application
-  .start()
-  .then(() => {
-    logger.info('task queue started');
-  })
-  .catch((error) => {
-    logger.error('task queue started error');
-    logger.error(error);
-  });
+application.start().catch((error) => {
+  logger.error('application started error');
+  logger.error(error);
+});

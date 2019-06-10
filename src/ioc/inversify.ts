@@ -5,6 +5,7 @@ import 'reflect-metadata';
 import { Application, IApplication } from '../app';
 import { ApplicationConfig, ApplicationConfigProvider, IApplicationConfig, IConfig } from '../config/application';
 import { IPubSubConfig, PubSubConfig } from '../config/pubsub';
+import { TaskQueueModule } from '../queues';
 import { IPubSubService, Logger, PubSubProvider, PubSubService } from '../services';
 import { ServiceIdentifierManager } from './ServiceIdentifierManager';
 
@@ -79,6 +80,8 @@ class ApplicationContainer {
       .to(Application)
       .inSingletonScope();
     this.container.bind<IPubSubService>(ServiceIdentifierManager.IPubSubService).to(PubSubService);
+
+    this.container.load(TaskQueueModule.getContainerModule());
   }
 }
 

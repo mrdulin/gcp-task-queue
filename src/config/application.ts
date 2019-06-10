@@ -12,6 +12,7 @@ interface IConfig {
   NODE_ENV: string;
   PROJECT_ID: string;
   PUBSUB_ADMIN_CREDENTIAL: string;
+  TASK_QUEUE_NAME: string;
   [name: string]: string;
 }
 
@@ -24,6 +25,7 @@ class ApplicationConfig implements IApplicationConfig {
     NODE_ENV: '',
     PROJECT_ID: '',
     PUBSUB_ADMIN_CREDENTIAL: './.gcp',
+    TASK_QUEUE_NAME: '',
   };
   private config!: IConfig;
   constructor(@inject(ServiceIdentifierManager.Logger) logger: ILogMethods) {
