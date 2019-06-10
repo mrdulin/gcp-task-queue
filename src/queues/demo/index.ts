@@ -5,9 +5,16 @@ import { ILogMethods, IMessage, IPubSubService } from '../../services';
 import { ITaskQueue } from '../interfaces';
 
 @injectable()
-class GoogleAdwordsTaskQueue implements ITaskQueue {
+class DemoTaskQueue implements ITaskQueue {
+  /**
+   * replace TOPIC and SUB with your task queue
+   *
+   * @static
+   * @type {string}
+   * @memberof DemoTaskQueue
+   */
   public static readonly TOPIC: string = 'ggaw-task-queue';
-  public static readonly SUB: string = GoogleAdwordsTaskQueue.TOPIC;
+  public static readonly SUB: string = DemoTaskQueue.TOPIC;
 
   private pubsubService: IPubSubService;
   private logger: ILogMethods;
@@ -24,22 +31,21 @@ class GoogleAdwordsTaskQueue implements ITaskQueue {
       const { subscription } = await this.initialize();
       subscription.on('message', this.taskHandler);
       subscription.on('error', this.taskErrorHandler);
-      this.logger.info('google adwords task queue started');
+      this.logger.info('demo task queue started');
     } catch (error) {
       this.logger.error(error);
-      throw new Error('google adwords task queue started error');
+      throw new Error('demo task queue started error');
     }
   }
 
   private async initialize() {
-    const topic: Topic = await this.pubsubService.createTopic(GoogleAdwordsTaskQueue.TOPIC);
+    const topic: Topic = await this.pubsubService.createTopic(DemoTaskQueue.TOPIC);
     const subscription: Subscription = await this.pubsubService.createSubscription(
-      GoogleAdwordsTaskQueue.TOPIC,
-      GoogleAdwordsTaskQueue.SUB,
+      DemoTaskQueue.TOPIC,
+      DemoTaskQueue.SUB,
     );
     return { topic, subscription };
   }
-
   private async taskHandler(message: IMessage) {
     this.logger.debug(message);
   }
@@ -49,4 +55,4 @@ class GoogleAdwordsTaskQueue implements ITaskQueue {
   }
 }
 
-export { GoogleAdwordsTaskQueue };
+export { DemoTaskQueue };
